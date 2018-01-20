@@ -105,6 +105,28 @@ pub trait ElementWise<Rhs = Self> {
     fn rem_assign_element_wise(&mut self, rhs: Rhs);
 }
 
+/// Saturating element-wise arithmetic operations. These are supplied for pragmatic
+/// reasons, but will usually fall outside of traditional algebraic properties.
+pub trait SaturatingElementWise<Rhs = Self> {
+    fn saturating_add_element_wise(self, rhs: Rhs) -> Self;
+    fn saturating_sub_element_wise(self, rhs: Rhs) -> Self;
+
+    fn saturating_add_assign_element_wise(&mut self, rhs: Rhs);
+    fn saturating_sub_assign_element_wise(&mut self, rhs: Rhs);
+}
+
+/// Wrapping element-wise arithmetic operations. These are supplied for pragmatic
+/// reasons, but will usually fall outside of traditional algebraic properties.
+pub trait WrappingElementWise<Rhs = Self> {
+    fn wrapping_add_element_wise(self, rhs: Rhs) -> Self;
+    fn wrapping_sub_element_wise(self, rhs: Rhs) -> Self;
+    fn wrapping_mul_element_wise(self, rhs: Rhs) -> Self;
+
+    fn wrapping_add_assign_element_wise(&mut self, rhs: Rhs);
+    fn wrapping_sub_assign_element_wise(&mut self, rhs: Rhs);
+    fn wrapping_mul_assign_element_wise(&mut self, rhs: Rhs);
+}
+
 /// Vectors that can be [added](http://mathworld.wolfram.com/VectorAddition.html)
 /// together and [multiplied](https://en.wikipedia.org/wiki/Scalar_multiplication)
 /// by scalars.

@@ -17,7 +17,7 @@
 //! distinguishes them from vectors, which have a length and direction, but do
 //! not have a fixed position.
 
-use num_traits::{Bounded, NumCast};
+use num_traits::{Bounded, NumCast, Saturating, WrappingAdd, WrappingMul, WrappingSub};
 use std::fmt;
 use std::mem;
 use std::ops::*;
@@ -281,6 +281,42 @@ macro_rules! impl_point {
             #[inline] fn mul_assign_element_wise(&mut self, rhs: S) { $(self.$field *= rhs);+ }
             #[inline] fn div_assign_element_wise(&mut self, rhs: S) { $(self.$field /= rhs);+ }
             #[inline] fn rem_assign_element_wise(&mut self, rhs: S) { $(self.$field %= rhs);+ }
+        }
+
+        impl<S: BaseNum + Saturating> SaturatingElementWise for $PointN<S> {
+            #[inline] fn saturating_add_element_wise(self, rhs: $PointN<S>) -> $PointN<S> { $PointN::new($(self.$field.saturating_add(rhs.$field)),+) }
+            #[inline] fn saturating_sub_element_wise(self, rhs: $PointN<S>) -> $PointN<S> { $PointN::new($(self.$field.saturating_add(rhs.$field)),+) }
+
+            #[inline] fn saturating_add_assign_element_wise(&mut self, rhs: $PointN<S>) { $(self.$field = self.$field.saturating_add(rhs.$field));+ }
+            #[inline] fn saturating_sub_assign_element_wise(&mut self, rhs: $PointN<S>) { $(self.$field = self.$field.saturating_sub(rhs.$field));+ }
+        }
+
+        impl<S: BaseNum + Saturating> SaturatingElementWise<S> for $PointN<S> {
+            #[inline] fn saturating_add_element_wise(self, rhs: S) -> $PointN<S> { $PointN::new($(self.$field.saturating_add(rhs)),+) }
+            #[inline] fn saturating_sub_element_wise(self, rhs: S) -> $PointN<S> { $PointN::new($(self.$field.saturating_add(rhs)),+) }
+
+            #[inline] fn saturating_add_assign_element_wise(&mut self, rhs: S) { $(self.$field = self.$field.saturating_add(rhs));+ }
+            #[inline] fn saturating_sub_assign_element_wise(&mut self, rhs: S) { $(self.$field = self.$field.saturating_sub(rhs));+ }
+        }
+
+        impl<S: BaseNum + WrappingAdd + WrappingMul + WrappingSub> WrappingElementWise for $PointN<S> {
+            #[inline] fn wrapping_add_element_wise(self, rhs: $PointN<S>) -> $PointN<S> { $PointN::new($(self.$field.wrapping_add(&rhs.$field)),+) }
+            #[inline] fn wrapping_sub_element_wise(self, rhs: $PointN<S>) -> $PointN<S> { $PointN::new($(self.$field.wrapping_sub(&rhs.$field)),+) }
+            #[inline] fn wrapping_mul_element_wise(self, rhs: $PointN<S>) -> $PointN<S> { $PointN::new($(self.$field.wrapping_mul(&rhs.$field)),+) }
+
+            #[inline] fn wrapping_add_assign_element_wise(&mut self, rhs: $PointN<S>) { $(self.$field = self.$field.wrapping_add(&rhs.$field));+ }
+            #[inline] fn wrapping_sub_assign_element_wise(&mut self, rhs: $PointN<S>) { $(self.$field = self.$field.wrapping_sub(&rhs.$field));+ }
+            #[inline] fn wrapping_mul_assign_element_wise(&mut self, rhs: $PointN<S>) { $(self.$field = self.$field.wrapping_mul(&rhs.$field));+ }
+        }
+
+        impl<S: BaseNum + WrappingAdd + WrappingMul + WrappingSub> WrappingElementWise<S> for $PointN<S> {
+            #[inline] fn wrapping_add_element_wise(self, rhs: S) -> $PointN<S> { $PointN::new($(self.$field.wrapping_add(&rhs)),+) }
+            #[inline] fn wrapping_sub_element_wise(self, rhs: S) -> $PointN<S> { $PointN::new($(self.$field.wrapping_sub(&rhs)),+) }
+            #[inline] fn wrapping_mul_element_wise(self, rhs: S) -> $PointN<S> { $PointN::new($(self.$field.wrapping_mul(&rhs)),+) }
+
+            #[inline] fn wrapping_add_assign_element_wise(&mut self, rhs: S) { $(self.$field = self.$field.wrapping_add(&rhs));+ }
+            #[inline] fn wrapping_sub_assign_element_wise(&mut self, rhs: S) { $(self.$field = self.$field.wrapping_sub(&rhs));+ }
+            #[inline] fn wrapping_mul_assign_element_wise(&mut self, rhs: S) { $(self.$field = self.$field.wrapping_mul(&rhs));+ }
         }
 
         impl_scalar_ops!($PointN<usize> { $($field),+ });

@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use rand::{Rand, Rng};
-use num_traits::{Bounded, NumCast};
+use num_traits::{Bounded, NumCast, Saturating, WrappingAdd, WrappingMul, WrappingSub};
 use std::fmt;
 use std::iter;
 use std::mem;
@@ -304,6 +304,42 @@ macro_rules! impl_vector {
             #[inline] fn rem_assign_element_wise(&mut self, rhs: S) { $(self.$field %= rhs);+ }
         }
 
+        impl<S: BaseNum + Saturating> SaturatingElementWise for $VectorN<S> {
+            #[inline] fn saturating_add_element_wise(self, rhs: $VectorN<S>) -> $VectorN<S> { $VectorN::new($(self.$field.saturating_add(rhs.$field)),+) }
+            #[inline] fn saturating_sub_element_wise(self, rhs: $VectorN<S>) -> $VectorN<S> { $VectorN::new($(self.$field.saturating_add(rhs.$field)),+) }
+
+            #[inline] fn saturating_add_assign_element_wise(&mut self, rhs: $VectorN<S>) { $(self.$field = self.$field.saturating_add(rhs.$field));+ }
+            #[inline] fn saturating_sub_assign_element_wise(&mut self, rhs: $VectorN<S>) { $(self.$field = self.$field.saturating_sub(rhs.$field));+ }
+        }
+
+        impl<S: BaseNum + Saturating> SaturatingElementWise<S> for $VectorN<S> {
+            #[inline] fn saturating_add_element_wise(self, rhs: S) -> $VectorN<S> { $VectorN::new($(self.$field.saturating_add(rhs)),+) }
+            #[inline] fn saturating_sub_element_wise(self, rhs: S) -> $VectorN<S> { $VectorN::new($(self.$field.saturating_add(rhs)),+) }
+
+            #[inline] fn saturating_add_assign_element_wise(&mut self, rhs: S) { $(self.$field = self.$field.saturating_add(rhs));+ }
+            #[inline] fn saturating_sub_assign_element_wise(&mut self, rhs: S) { $(self.$field = self.$field.saturating_sub(rhs));+ }
+        }
+
+        impl<S: BaseNum + WrappingAdd + WrappingMul + WrappingSub> WrappingElementWise for $VectorN<S> {
+            #[inline] fn wrapping_add_element_wise(self, rhs: $VectorN<S>) -> $VectorN<S> { $VectorN::new($(self.$field.wrapping_add(&rhs.$field)),+) }
+            #[inline] fn wrapping_sub_element_wise(self, rhs: $VectorN<S>) -> $VectorN<S> { $VectorN::new($(self.$field.wrapping_sub(&rhs.$field)),+) }
+            #[inline] fn wrapping_mul_element_wise(self, rhs: $VectorN<S>) -> $VectorN<S> { $VectorN::new($(self.$field.wrapping_mul(&rhs.$field)),+) }
+
+            #[inline] fn wrapping_add_assign_element_wise(&mut self, rhs: $VectorN<S>) { $(self.$field = self.$field.wrapping_add(&rhs.$field));+ }
+            #[inline] fn wrapping_sub_assign_element_wise(&mut self, rhs: $VectorN<S>) { $(self.$field = self.$field.wrapping_sub(&rhs.$field));+ }
+            #[inline] fn wrapping_mul_assign_element_wise(&mut self, rhs: $VectorN<S>) { $(self.$field = self.$field.wrapping_mul(&rhs.$field));+ }
+        }
+
+        impl<S: BaseNum + WrappingAdd + WrappingMul + WrappingSub> WrappingElementWise<S> for $VectorN<S> {
+            #[inline] fn wrapping_add_element_wise(self, rhs: S) -> $VectorN<S> { $VectorN::new($(self.$field.wrapping_add(&rhs)),+) }
+            #[inline] fn wrapping_sub_element_wise(self, rhs: S) -> $VectorN<S> { $VectorN::new($(self.$field.wrapping_sub(&rhs)),+) }
+            #[inline] fn wrapping_mul_element_wise(self, rhs: S) -> $VectorN<S> { $VectorN::new($(self.$field.wrapping_mul(&rhs)),+) }
+
+            #[inline] fn wrapping_add_assign_element_wise(&mut self, rhs: S) { $(self.$field = self.$field.wrapping_add(&rhs));+ }
+            #[inline] fn wrapping_sub_assign_element_wise(&mut self, rhs: S) { $(self.$field = self.$field.wrapping_sub(&rhs));+ }
+            #[inline] fn wrapping_mul_assign_element_wise(&mut self, rhs: S) { $(self.$field = self.$field.wrapping_mul(&rhs));+ }
+        }
+
         impl_scalar_ops!($VectorN<usize> { $($field),+ });
         impl_scalar_ops!($VectorN<u8> { $($field),+ });
         impl_scalar_ops!($VectorN<u16> { $($field),+ });
@@ -529,6 +565,42 @@ macro_rules! impl_vector_default {
             #[inline] default fn mul_assign_element_wise(&mut self, rhs: S) { $(self.$field *= rhs);+ }
             #[inline] default fn div_assign_element_wise(&mut self, rhs: S) { $(self.$field /= rhs);+ }
             #[inline] fn rem_assign_element_wise(&mut self, rhs: S) { $(self.$field %= rhs);+ }
+        }
+
+        impl<S: BaseNum + Saturating> SaturatingElementWise for $VectorN<S> {
+            #[inline] fn saturating_add_element_wise(self, rhs: $VectorN<S>) -> $VectorN<S> { $VectorN::new($(self.$field.saturating_add(rhs.$field)),+) }
+            #[inline] fn saturating_sub_element_wise(self, rhs: $VectorN<S>) -> $VectorN<S> { $VectorN::new($(self.$field.saturating_add(rhs.$field)),+) }
+
+            #[inline] fn saturating_add_assign_element_wise(&mut self, rhs: $VectorN<S>) { $(self.$field = self.$field.saturating_add(rhs.$field));+ }
+            #[inline] fn saturating_sub_assign_element_wise(&mut self, rhs: $VectorN<S>) { $(self.$field = self.$field.saturating_sub(rhs.$field));+ }
+        }
+
+        impl<S: BaseNum + Saturating> SaturatingElementWise<S> for $VectorN<S> {
+            #[inline] fn saturating_add_element_wise(self, rhs: S) -> $VectorN<S> { $VectorN::new($(self.$field.saturating_add(rhs)),+) }
+            #[inline] fn saturating_sub_element_wise(self, rhs: S) -> $VectorN<S> { $VectorN::new($(self.$field.saturating_add(rhs)),+) }
+
+            #[inline] fn saturating_add_assign_element_wise(&mut self, rhs: S) { $(self.$field = self.$field.saturating_add(rhs));+ }
+            #[inline] fn saturating_sub_assign_element_wise(&mut self, rhs: S) { $(self.$field = self.$field.saturating_sub(rhs));+ }
+        }
+
+        impl<S: BaseNum + WrappingAdd + WrappingMul + WrappingSub> WrappingElementWise for $VectorN<S> {
+            #[inline] fn wrapping_add_element_wise(self, rhs: $VectorN<S>) -> $VectorN<S> { $VectorN::new($(self.$field.wrapping_add(&rhs.$field)),+) }
+            #[inline] fn wrapping_sub_element_wise(self, rhs: $VectorN<S>) -> $VectorN<S> { $VectorN::new($(self.$field.wrapping_sub(&rhs.$field)),+) }
+            #[inline] fn wrapping_mul_element_wise(self, rhs: $VectorN<S>) -> $VectorN<S> { $VectorN::new($(self.$field.wrapping_mul(&rhs.$field)),+) }
+
+            #[inline] fn wrapping_add_assign_element_wise(&mut self, rhs: $VectorN<S>) { $(self.$field = self.$field.wrapping_add(&rhs.$field));+ }
+            #[inline] fn wrapping_sub_assign_element_wise(&mut self, rhs: $VectorN<S>) { $(self.$field = self.$field.wrapping_sub(&rhs.$field));+ }
+            #[inline] fn wrapping_mul_assign_element_wise(&mut self, rhs: $VectorN<S>) { $(self.$field = self.$field.wrapping_mul(&rhs.$field));+ }
+        }
+
+        impl<S: BaseNum + WrappingAdd + WrappingMul + WrappingSub> WrappingElementWise<S> for $VectorN<S> {
+            #[inline] fn wrapping_add_element_wise(self, rhs: S) -> $VectorN<S> { $VectorN::new($(self.$field.wrapping_add(&rhs)),+) }
+            #[inline] fn wrapping_sub_element_wise(self, rhs: S) -> $VectorN<S> { $VectorN::new($(self.$field.wrapping_sub(&rhs)),+) }
+            #[inline] fn wrapping_mul_element_wise(self, rhs: S) -> $VectorN<S> { $VectorN::new($(self.$field.wrapping_mul(&rhs)),+) }
+
+            #[inline] fn wrapping_add_assign_element_wise(&mut self, rhs: S) { $(self.$field = self.$field.wrapping_add(&rhs));+ }
+            #[inline] fn wrapping_sub_assign_element_wise(&mut self, rhs: S) { $(self.$field = self.$field.wrapping_sub(&rhs));+ }
+            #[inline] fn wrapping_mul_assign_element_wise(&mut self, rhs: S) { $(self.$field = self.$field.wrapping_mul(&rhs));+ }
         }
 
         impl_scalar_ops!($VectorN<usize> { $($field),+ });
